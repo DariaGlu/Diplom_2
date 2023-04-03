@@ -17,6 +17,7 @@ public class OrderSteps {
                 .setBaseUri(BASE_URI)
                 .build();
     }
+
     @Step("Create new order")
     public ValidatableResponse createOrder(Order order, String accessToken) {
         return given()
@@ -26,6 +27,16 @@ public class OrderSteps {
                 .body(order)
                 .when()
                 .post(ORDER_CREATE_POST)
+                .then();
+    }
+
+    @Step("Get list of orders")
+    public ValidatableResponse getListOfOrders(String accessToken) {
+        return given()
+                .spec(getBaseReqSpec())
+                .header("authorization", accessToken)
+                .when()
+                .get(ORDER_USER_GET)
                 .then();
     }
 }

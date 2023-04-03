@@ -29,7 +29,7 @@ public class UserSteps {
                 .post(USER_REGISTER_POST);
     }
 
-    @Step("Delete user {user}")
+    @Step("Delete user")
     public Response deleteUser(String token) {
         return given()
                 .spec(getBaseReqSpec())
