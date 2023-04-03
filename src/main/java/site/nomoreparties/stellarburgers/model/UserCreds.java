@@ -8,15 +8,17 @@ public class UserCreds {
         this.email = email;
         this.password = password;
     }
+
+    public static UserCreds from(User user) {
+        return new UserCreds(user.getEmail(), user.getPassword());
+    }
+
     @Override
     public String toString() {
         return "UserCreds{" +
                 "email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
-    }
-    public static UserCreds from(User user) {
-        return new UserCreds(user.getEmail(), user.getPassword());
     }
 
     public String getEmail() {

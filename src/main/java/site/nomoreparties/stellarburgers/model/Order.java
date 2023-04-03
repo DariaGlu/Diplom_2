@@ -1,4 +1,5 @@
 package site.nomoreparties.stellarburgers.model;
+
 import java.util.List;
 
 public class Order {

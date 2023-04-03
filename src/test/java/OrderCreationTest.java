@@ -24,11 +24,11 @@ public class OrderCreationTest {
     private static final String INGREDIENT_FILLING_ID = "61c0c5a71d1f82001bdaaa6f";
     private static final String INGREDIENT_WRONG_ID = "0";
     private final static String NO_ACCESS_TOKEN = "";
+    private final List<String> ingredients = new ArrayList<>();
     private User user;
     private UserSteps userSteps;
     private Order order;
     private OrderSteps orderSteps;
-    private final List<String> ingredients = new ArrayList<>();
     private String accessToken;
 
     @BeforeClass
