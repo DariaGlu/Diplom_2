@@ -49,7 +49,7 @@ public class UserAuthTest {
     @Test
     @DisplayName("User logs in with his data")
     public void userLoginSuccess() {
-        userSteps.loginUser(UserCreds.from(user))
+        userSteps.loginUser(userCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_OK)
                 .and()
@@ -60,7 +60,7 @@ public class UserAuthTest {
     @DisplayName("User logs with wrong email")
     public void userLoginWrongEmailFail() {
         user.setEmail(RandomStringUtils.randomAlphanumeric(3, 10).toLowerCase() + "@yandex.ru");
-        userSteps.loginUser(UserCreds.from(user))
+        userSteps.loginUser(userCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_UNAUTHORIZED)
                 .and()
@@ -71,7 +71,7 @@ public class UserAuthTest {
     @DisplayName("User logs with wrong password")
     public void userLoginWrongPasswordFail() {
         user.setPassword(RandomStringUtils.randomAlphanumeric(6, 12));
-        userSteps.loginUser(UserCreds.from(user))
+        userSteps.loginUser(userCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_UNAUTHORIZED)
                 .and()
