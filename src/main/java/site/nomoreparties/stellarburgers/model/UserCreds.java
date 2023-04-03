@@ -15,6 +15,9 @@ public class UserCreds {
                 ", password='" + password + '\'' +
                 '}';
     }
+    public static UserCreds from(User user) {
+        return new UserCreds(user.getEmail(), user.getPassword());
+    }
 
     public String getEmail() {
         return email;
