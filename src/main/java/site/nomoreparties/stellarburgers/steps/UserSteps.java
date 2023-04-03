@@ -19,6 +19,7 @@ public class UserSteps {
                 .setBaseUri(BASE_URI)
                 .build();
     }
+
     @Step("Create new user {user}")
     public Response createUser(User user) {
         return given()
@@ -27,6 +28,7 @@ public class UserSteps {
                 .when()
                 .post(USER_REGISTER_POST);
     }
+
     @Step("Delete user {user}")
     public Response deleteUser(String token) {
         return given()
@@ -35,6 +37,7 @@ public class UserSteps {
                 .when()
                 .delete(USER_DEL_DELETE);
     }
+
     @Step("Login user {user}")
     public ValidatableResponse loginUser(UserCreds userCreds) {
         return given()
@@ -42,6 +45,18 @@ public class UserSteps {
                 .body(userCreds)
                 .when()
                 .post(USER_AUTH_POST)
+                .then();
+    }
+
+    @Step("Update user data")
+    public ValidatableResponse updateUserData(User user, String token) {
+        return given()
+                .spec(getBaseReqSpec())
+                .header("authorization", token)
+                .and()
+                .body(user)
+                .when()
+                .patch(USER_UPDATE_PATCH)
                 .then();
     }
 }
