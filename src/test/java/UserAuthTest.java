@@ -9,15 +9,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import site.nomoreparties.stellarburgers.model.User;
+import site.nomoreparties.stellarburgers.model.UserCreds;
 import site.nomoreparties.stellarburgers.steps.UserSteps;
 
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
-public class UserCreationCompleteDataTest {
+public class UserAuthTest {
     private User user;
+    private UserCreds userCreds;
     private UserSteps userSteps;
     private String accessToken;
 
@@ -35,6 +37,8 @@ public class UserCreationCompleteDataTest {
         String password = RandomStringUtils.randomAlphanumeric(6, 12);
         String name = RandomStringUtils.randomAlphanumeric(3, 10);
         user = new User(email, password, name);
+        Response response = userSteps.createUser(user);
+        accessToken = response.then().extract().path("accessToken");
     }
 
     @After
@@ -43,11 +47,9 @@ public class UserCreationCompleteDataTest {
     }
 
     @Test
-    @DisplayName("Create new user with unique email")
-    public void createUniqueUserSuccess() {
-        Response response = userSteps.createUser(user);
-        accessToken = response.then().extract().path("accessToken");
-        response.then()
+    @DisplayName("User logs in with his data")
+    public void userLoginSuccess() {
+        userSteps.loginUser(UserCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_OK)
                 .and()
@@ -55,15 +57,24 @@ public class UserCreationCompleteDataTest {
     }
 
     @Test
-    @DisplayName("Create new user with already existing email")
-    public void createNotUniqueUserFail() {
-        Response response = userSteps.createUser(user);
-        accessToken = response.then().extract().path("accessToken");
-        userSteps.createUser(user)
-                .then()
+    @DisplayName("User logs with wrong email")
+    public void userLoginWrongEmailFail() {
+        user.setEmail(RandomStringUtils.randomAlphanumeric(3, 10).toLowerCase() + "@yandex.ru");
+        userSteps.loginUser(UserCreds.from(user))
                 .assertThat()
-                .statusCode(HTTP_FORBIDDEN)
+                .statusCode(HTTP_UNAUTHORIZED)
                 .and()
-                .body("success", equalTo(false), "message", is("User already exists"));
+                .body("success", equalTo(false), "message", is("email or password are incorrect"));
+    }
+
+    @Test
+    @DisplayName("User logs with wrong password")
+    public void userLoginWrongPasswordFail() {
+        user.setPassword(RandomStringUtils.randomAlphanumeric(6, 12));
+        userSteps.loginUser(UserCreds.from(user))
+                .assertThat()
+                .statusCode(HTTP_UNAUTHORIZED)
+                .and()
+                .body("success", equalTo(false), "message", is("email or password are incorrect"));
     }
 }

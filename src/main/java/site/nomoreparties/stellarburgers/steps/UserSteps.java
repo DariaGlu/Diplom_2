@@ -4,8 +4,10 @@ import io.qameta.allure.Step;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import site.nomoreparties.stellarburgers.model.User;
+import site.nomoreparties.stellarburgers.model.UserCreds;
 
 import static io.restassured.RestAssured.given;
 import static site.nomoreparties.stellarburgers.constants.Endpoints.*;
@@ -26,11 +28,20 @@ public class UserSteps {
                 .post(USER_REGISTER_POST);
     }
     @Step("Delete user {user}")
-    public Response deleteUser(User user, String token) {
+    public Response deleteUser(String token) {
         return given()
                 .spec(getBaseReqSpec())
                 .header("authorization", token)
                 .when()
                 .delete(USER_DEL_DELETE);
+    }
+    @Step("Login user {user}")
+    public ValidatableResponse loginUser(UserCreds userCreds) {
+        return given()
+                .spec(getBaseReqSpec())
+                .body(userCreds)
+                .when()
+                .post(USER_AUTH_POST)
+                .then();
     }
 }
