@@ -16,11 +16,11 @@ import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(Parameterized.class)
 public class UserCreationIncompleteDataTest {
-    private User user;
-    private UserSteps userSteps;
     private final String email;
     private final String password;
     private final String name;
+    private User user;
+    private UserSteps userSteps;
 
     public UserCreationIncompleteDataTest(String email, String password, String name) {
         this.email = email;
