@@ -1,3 +1,5 @@
+package user;
+
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -8,27 +10,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import site.nomoreparties.stellarburgers.model.Order;
 import site.nomoreparties.stellarburgers.model.User;
-import site.nomoreparties.stellarburgers.steps.OrderSteps;
+import site.nomoreparties.stellarburgers.model.UserCreds;
 import site.nomoreparties.stellarburgers.steps.UserSteps;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
-public class OrderGetListTest {
-    private static final String INGREDIENT_BUN_ID = "61c0c5a71d1f82001bdaaa6d";
-    private static final String INGREDIENT_FILLING_ID = "61c0c5a71d1f82001bdaaa6f";
-    private final static String NO_ACCESS_TOKEN = "";
-    private final List<String> ingredients = new ArrayList<>();
+public class UserAuthTest {
     private User user;
+    private UserCreds userCreds;
     private UserSteps userSteps;
-    private Order order;
-    private OrderSteps orderSteps;
     private String accessToken;
 
     @BeforeClass
@@ -47,7 +41,6 @@ public class OrderGetListTest {
         user = new User(email, password, name);
         Response response = userSteps.createUser(user);
         accessToken = response.then().extract().path("accessToken");
-        orderSteps = new OrderSteps();
     }
 
     @After
@@ -56,30 +49,34 @@ public class OrderGetListTest {
     }
 
     @Test
-    @DisplayName("Get list of orders of authorized user")
-    public void getListOfOrdersAuthorizedUserSuccess() {
-        ingredients.add(INGREDIENT_BUN_ID);
-        ingredients.add(INGREDIENT_FILLING_ID);
-        order = new Order(ingredients);
-        orderSteps.createOrder(order, accessToken);
-        orderSteps.getListOfOrders(accessToken)
+    @DisplayName("User logs in with his data")
+    public void userLoginSuccess() {
+        userSteps.loginUser(userCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_OK)
                 .and()
-                .body("success", equalTo(true), "orders", notNullValue());
+                .body("success", equalTo(true));
     }
 
     @Test
-    @DisplayName("Get list of orders of unauthorized user")
-    public void getListOfOrdersUnauthorizedUserFail() {
-        ingredients.add(INGREDIENT_BUN_ID);
-        ingredients.add(INGREDIENT_FILLING_ID);
-        order = new Order(ingredients);
-        orderSteps.createOrder(order, accessToken);
-        orderSteps.getListOfOrders(NO_ACCESS_TOKEN)
+    @DisplayName("User logs with wrong email")
+    public void userLoginWrongEmailFail() {
+        user.setEmail(RandomStringUtils.randomAlphanumeric(3, 10).toLowerCase() + "@yandex.ru");
+        userSteps.loginUser(userCreds.from(user))
                 .assertThat()
                 .statusCode(HTTP_UNAUTHORIZED)
                 .and()
-                .body("success", equalTo(false), "message", is("You should be authorised"));
+                .body("success", equalTo(false), "message", is("email or password are incorrect"));
+    }
+
+    @Test
+    @DisplayName("User logs with wrong password")
+    public void userLoginWrongPasswordFail() {
+        user.setPassword(RandomStringUtils.randomAlphanumeric(6, 12));
+        userSteps.loginUser(userCreds.from(user))
+                .assertThat()
+                .statusCode(HTTP_UNAUTHORIZED)
+                .and()
+                .body("success", equalTo(false), "message", is("email or password are incorrect"));
     }
 }
